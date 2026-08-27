@@ -1,0 +1,67 @@
+name: Build WindowsToolDemo
+
+# 触发条件：推送到 master/main 或针对这两个分支的 PR
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+# 权限：仅读取仓库内容（够用于 checkout + 上传产物）
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build (Windows / .NET Framework)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout 源码
+        uses: actions/checkout@v4
+
+      # .NET Framework 4.7.2 / 4.8 只能由 MSBuild 在 Windows 上编译
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      # 项目无 NuGet 包（无 packages.config），此步在缺包时自动跳过、不报错
+      - name: NuGet Restore（如有依赖）
+        run: nuget restore WindowsToolDemo.sln
+        continue-on-error: true
+
+      - name: Build (Release)
+        run: msbuild WindowsToolDemo.sln /p:Configuration=Release /m
+
+      # 把编译出的 exe 作为可下载产物（方便随时拿构建结果做验证/分发）
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: WindowsToolDemo-Release
+          path: |
+            IPSetter/bin/Release/
+            ScreenSaverTool/bin/Release/
+          if-no-files-found: warn
+          retention-days: 30
+
+  # ----------------------------------------------------------------------
+  # 测试任务（占位）：仓库当前没有单元测试项目，此 job 默认被注释禁用。
+  # 当你新增 xUnit / MSTest 测试项目（.NET Framework 4.7.2 目标）后，
+  # 取消下面 test job 的注释，并把 TestProject 换成你的测试项目名即可。
+  # ----------------------------------------------------------------------
+  # test:
+  #   name: Test (xUnit / MSTest)
+  #   runs-on: windows-latest
+  #   needs: build
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: microsoft/setup-msbuild@v2
+  #     - run: nuget restore WindowsToolDemo.sln
+  #       continue-on-error: true
+  #     - run: msbuild WindowsToolDemo.sln /p:Configuration=Release /m
+  #     # 运行所有 *Tests.dll / *Test.dll（MSTest 用 vstest，xUnit 也兼容）
+  #     - name: Run tests
+  #       run: |
+  #         $dlls = Get-ChildItem -Recurse -Filter *Tests.dll bin\Release
+  #         if ($dlls.Count -eq 0) { Write-Host "未找到测试程序集，跳过"; exit 0 }
+  #         & vstest.console.exe $dlls.FullName
