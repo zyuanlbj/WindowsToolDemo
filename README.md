@@ -1,6 +1,6 @@
 # WindowsToolDemo
 
-一组** Windows 桌面小工具**（C# / WinForms），用于现场快速配置设备的网络与系统显示策略。
+一组 **Windows 桌面小工具**（C# / WinForms），用于现场快速配置设备的网络与系统显示策略。
 目前包含两个独立工具：**IPSetter**（设置有线网卡 IP）与 **ScreenSaverTool**（设置壁纸 / 锁屏 / 屏保）。
 
 > 标签：`C#` `WinForms` `WMI` `组策略` `Windows` `上位机` `GitHub`
@@ -21,14 +21,14 @@
 
 ## 技术栈
 
-| 项目 | 说明 |
-| --- | --- |
-| 语言 | C#（.NET Framework） |
-| UI | Windows Forms（界面全部代码生成，无设计器） |
-| IPSetter 框架 | .NET Framework **4.7.2** |
-| ScreenSaverTool 框架 | .NET Framework **4.8** |
-| 关键技术 | WMI（`Win32_NetworkAdapter`）、注册表 + 本地组策略 PReg 二进制读写、Win32 API（`SystemParametersInfo`、`Wow64DisableWow64FsRedirection`）、`powercfg` |
-| 构建 | Visual Studio 2022（含「.NET 桌面开发」工作负载） |
+| 项目                 | 说明                                                                                                                               |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| 语言                 | C#（.NET Framework）                                                                                                               |
+| UI                 | Windows Forms（界面全部代码生成，无设计器）                                                                                                     |
+| IPSetter 框架        | .NET Framework **4.7.2**                                                                                                         |
+| ScreenSaverTool 框架 | .NET Framework **4.8**                                                                                                           |
+| 关键技术               | WMI（`Win32_NetworkAdapter`）、注册表 + 本地组策略 PReg 二进制读写、Win32 API（`SystemParametersInfo`、`Wow64DisableWow64FsRedirection`）、`powercfg` |
+| 构建                 | Visual Studio 2022（含「.NET 桌面开发」工作负载）                                                                                             |
 
 ---
 
