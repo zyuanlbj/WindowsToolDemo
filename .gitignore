@@ -1,0 +1,75 @@
+# ---------- 编译产物 / 构建输出 ----------
+bin/
+obj/
+[Bb]in/
+[Oo]bj/
+*.exe
+*.dll
+# 注意：如果项目依赖第三方未走 NuGet 的 DLL，需把对应文件加到白名单：
+# !Libs/ThirdParty/xxx.dll
+
+# ---------- Visual Studio ----------
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+.vscode/
+
+# ---------- ReSharper / Rider ----------
+_ReSharper*/
+*.[Rr]e[Ss]harper
+.idea/
+*.DotSettings.user
+
+# ---------- NuGet ----------
+packages/
+*.nupkg
+# 走 PackageReference 的现代项目不需要 packages/，保留上面的排除以防万一
+
+# ---------- WPF / XAML 生成物 ----------
+# XAML 编译会生成 *.g.cs / *.g.i.cs，位于 obj/ 下，已被 obj/ 覆盖
+# 显式再排除一层，防止个别项目把生成文件落到根目录
+*.g.cs
+*.g.i.cs
+*.resources
+*.cache
+# Blend / 设计器临时文件
+*.lock.json
+ExpressionBlendGeneratedCode/
+
+# ---------- ClickOnce / 发布 ----------
+*.publish/
+Publish/
+*.application
+# 注意：*.manifest 会误伤项目必需的 app.manifest（提权清单，csproj 中 <ApplicationManifest> 引用），必须白名单放行
+*.manifest
+!app.manifest
+
+# ---------- 测试 / 覆盖率 ----------
+TestResults/
+*.trx
+[Cc]overage*/
+
+# ---------- 日志 / 临时 ----------
+*.log
+*.tmp
+*.temp
+Thumbs.db
+Desktop.ini
+
+# ---------- 密钥 / 证书 / 敏感配置（务必排除！） ----------
+*.pfx
+*.snk
+*.key
+appsettings.secrets.json
+appsettings.*.json
+secrets.json
+# 强名称密钥若必须入库（罕见），用白名单放行：!MyKey.snk
+
+# ---------- 数据库 / 运行时数据 ----------
+*.db
+*.sqlite
+*.mdf
+*.ldf
