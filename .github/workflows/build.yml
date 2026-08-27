@@ -43,25 +43,3 @@ jobs:
             ScreenSaverTool/bin/Release/
           if-no-files-found: warn
           retention-days: 30
-
-  # ----------------------------------------------------------------------
-  # 测试任务（占位）：仓库当前没有单元测试项目，此 job 默认被注释禁用。
-  # 当你新增 xUnit / MSTest 测试项目（.NET Framework 4.7.2 目标）后，
-  # 取消下面 test job 的注释，并把 TestProject 换成你的测试项目名即可。
-  # ----------------------------------------------------------------------
-  # test:
-  #   name: Test (xUnit / MSTest)
-  #   runs-on: windows-latest
-  #   needs: build
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: microsoft/setup-msbuild@v2
-  #     - run: nuget restore WindowsToolDemo.sln
-  #       continue-on-error: true
-  #     - run: msbuild WindowsToolDemo.sln /p:Configuration=Release /m
-  #     # 运行所有 *Tests.dll / *Test.dll（MSTest 用 vstest，xUnit 也兼容）
-  #     - name: Run tests
-  #       run: |
-  #         $dlls = Get-ChildItem -Recurse -Filter *Tests.dll bin\Release
-  #         if ($dlls.Count -eq 0) { Write-Host "未找到测试程序集，跳过"; exit 0 }
-  #         & vstest.console.exe $dlls.FullName
