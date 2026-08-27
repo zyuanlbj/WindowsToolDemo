@@ -1,0 +1,27 @@
+# ============================================================
+#  换行符策略（跨平台协作规范）
+#  仓库统一存 LF；检出到工作区时按平台自动转换
+# ============================================================
+* text=auto
+
+# ---------- 源码 / 文本文件 ----------
+*.cs      text diff=csharp
+*.csproj  text
+# Visual Studio 对 .sln 换行敏感，强制 CRLF
+*.sln     text eol=crlf
+*.config  text
+*.user    text
+*.md      text
+.gitignore text
+LICENSE   text
+
+# ---------- 资源 / 二进制（禁止换行转换，避免损坏） ----------
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.gif     binary
+*.ico     binary
+*.bmp     binary
+*.exe     binary
+*.dll     binary
+*.pdf     binary
