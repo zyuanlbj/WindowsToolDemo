@@ -88,6 +88,18 @@ WindowsToolDemo/
 
 ---
 
+## 界面预览
+
+### IPSetter（有线网卡 IP 设置）
+
+![IPSetter](docs/screenshots/ipsetter.png)
+
+### ScreenSaverTool（屏保与背景设置）
+
+![ScreenSaverTool](docs/screenshots/screensaver.png)
+
+---
+
 ## 使用说明
 
 ### IPSetter（设置有线网卡 IP）
@@ -138,8 +150,6 @@ WindowsToolDemo/
 ## 许可证
 
 [MIT](LICENSE)
-
-> 注：仓库目前尚未包含 `LICENSE` 文件，若要采用 MIT，请在根目录补一个 `LICENSE` 文件（可参考 https://choosealicense.com/licenses/mit/）。
 
 ---
 
