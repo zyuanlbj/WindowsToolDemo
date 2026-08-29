@@ -1,9 +1,9 @@
 # WindowsToolDemo
 
-一组 **Windows 桌面小工具**（C# / WinForms），用于现场快速配置设备的网络与系统显示策略。
-目前包含两个独立工具：**IPSetter**（设置有线网卡 IP）与 **ScreenSaverTool**（设置壁纸 / 锁屏 / 屏保）。
+一组 **Windows 桌面小工具**（C# / WinForms），用于现场快速配置设备网络、系统显示策略，以及串口设备调试。
+目前包含三个独立工具：**IPSetter**（有线网卡 IP 设置）、**ScreenSaverTool**（壁纸 / 锁屏 / 屏保设置）与 **SerialPortDemo**（串口调试助手）。
 
-> 标签：`C#` `WinForms` `WMI` `组策略` `Windows` `上位机` `GitHub`
+> 标签：`C#` `WinForms` `WMI` `组策略` `串口` `Windows` `上位机` `GitHub`
 
 ---
 
@@ -14,6 +14,11 @@
 - [x] **IPSetter**：IPv4 格式校验 + 记忆上次填写值（持久化到 user.config）
 - [x] **ScreenSaverTool**：选择图片设置桌面壁纸 + 锁屏背景
 - [x] **ScreenSaverTool**：通过本地组策略（Registry.pol）固化「不显示锁屏 / 禁用屏保 / 阻止自动锁屏」
+- [x] **SerialPortDemo**：串口调试助手，支持串口号 / 波特率 / 校验位 / 数据位 / 停止位 / RTS 配置
+- [x] **SerialPortDemo**：文本（ASCII）与十六进制（HEX）双模式收发，接收区可暂停、可清空
+- [x] **SerialPortDemo**：定时 / 自动循环发送，发送 / 接收字节计数
+- [x] **SerialPortDemo**：快捷命令管理（命名 + HEX 内容校验），一键调用
+- [x] **SerialPortDemo**：HEX ⇄ ASCII 互转、校验（ParityHelper）等辅助工具
 - [ ] 规划中：文件加密 / 解密工具
 - [ ] 规划中：格式转换工具
 
@@ -21,23 +26,25 @@
 
 ## 技术栈
 
-| 项目                 | 说明                                                                                                                               |
-| ------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| 语言                 | C#（.NET Framework）                                                                                                               |
-| UI                 | Windows Forms（界面全部代码生成，无设计器）                                                                                                     |
-| IPSetter 框架        | .NET Framework **4.7.2**                                                                                                         |
-| ScreenSaverTool 框架 | .NET Framework **4.8**                                                                                                           |
-| 关键技术               | WMI（`Win32_NetworkAdapter`）、注册表 + 本地组策略 PReg 二进制读写、Win32 API（`SystemParametersInfo`、`Wow64DisableWow64FsRedirection`）、`powercfg` |
-| 构建                 | Visual Studio 2022（含「.NET 桌面开发」工作负载）                                                                                             |
+| 项目                  | 说明                                                                                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 语言                  | C#（.NET Framework）                                                                                                                                      |
+| UI                  | Windows Forms（界面全部代码生成，无设计器）                                                                                                                            |
+| IPSetter 框架         | .NET Framework **4.7.2**                                                                                                                                |
+| ScreenSaverTool 框架  | .NET Framework **4.8**                                                                                                                                  |
+| SerialPortDemo 框架   | .NET Framework **4.6**                                                                                                                                  |
+| 关键技术                | WMI（`Win32_NetworkAdapter`）、注册表 + 本地组策略 PReg 二进制读写、Win32 API（`SystemParametersInfo`、`Wow64DisableWow64FsRedirection`）、`powercfg`、`.NET SerialPort` |
+| 构建                  | Visual Studio 2022（含「.NET 桌面开发」工作负载）                                                                                                                |
 
 ---
 
 ## 环境要求
 
 - Windows 10 / 11
-- 运行时：建议安装 **.NET Framework 4.8**（向下兼容 4.7.2）
+- 运行时：建议安装 **.NET Framework 4.8**（向下兼容 4.6 及以上）
 - Visual Studio 2022（打开 `WindowsToolDemo.sln` 编译）
 - **管理员权限**：`ScreenSaverTool` 需写计算机配置 / 电源策略（已通过 `app.manifest` 请求提权），请以管理员身份运行
+- **SerialPortDemo 依赖**：`xbd.DataConvertLib` 为 NuGet 包，首次生成时自动还原
 
 ---
 
@@ -53,7 +60,7 @@ git clone https://github.com/zyuanlbj/WindowsToolDemo.git
 # 2. 用 VS2022 打开解决方案
 WindowsToolDemo.sln
 
-# 3. 生成解决方案（VS 打开一般自动还原，无需 NuGet 包）
+# 3. 生成解决方案（VS 打开一般自动还原 NuGet 包）
 #    生成 -> 生成解决方案（或 F6）
 
 # 4. 运行
@@ -67,7 +74,7 @@ WindowsToolDemo.sln
 
 ```
 WindowsToolDemo/
-├─ WindowsToolDemo.sln        # 解决方案（含两个子项目）
+├─ WindowsToolDemo.sln        # 解决方案（含三个子项目）
 ├─ IPSetter/                  # 有线网卡 IP 设置工具
 │  ├─ IPSetter.csproj
 │  ├─ MainForm.cs             # 界面与交互
@@ -75,15 +82,25 @@ WindowsToolDemo/
 │  ├─ Program.cs
 │  ├─ app.manifest            # 提权清单
 │  └─ ip.ico
-└─ ScreenSaverTool/          # 壁纸 / 锁屏 / 屏保设置工具
-   ├─ ScreenSaverTool.csproj
-   ├─ MainForm.cs             # 界面与策略联动
-   ├─ GroupPolicyHelper.cs    # 本地组策略 Registry.pol 二进制读写（PReg 格式）
-   ├─ IGroupPolicyObject2.cs  # 组策略 COM 接口封装
-   ├─ Native.cs               # Win32 API 封装（壁纸 / 屏保 / Wow64 重定向）
+├─ ScreenSaverTool/          # 壁纸 / 锁屏 / 屏保设置工具
+│  ├─ ScreenSaverTool.csproj
+│  ├─ MainForm.cs             # 界面与策略联动
+│  ├─ GroupPolicyHelper.cs    # 本地组策略 Registry.pol 二进制读写（PReg 格式）
+│  ├─ IGroupPolicyObject2.cs  # 组策略 COM 接口封装
+│  ├─ Native.cs               # Win32 API 封装（壁纸 / 屏保 / Wow64 重定向）
+│  ├─ Program.cs
+│  ├─ app.manifest            # 提权清单
+│  └─ screensaver.ico
+└─ SerialPortDemo/           # 串口调试助手
+   ├─ SerialPortDemo.csproj
+   ├─ FrmMain.cs              # 主窗体：串口参数配置、收发、定时发送
+   ├─ FrmMain.Designer.cs
+   ├─ FrmQuickSet.cs          # 快捷命令（命名 + HEX 内容校验）
+   ├─ ParityHelper.cs         # 校验辅助
+   ├─ Helper\HexHelper.cs     # HEX ⇄ ASCII 转换、字节拼接等
    ├─ Program.cs
-   ├─ app.manifest            # 提权清单
-   └─ screensaver.ico
+   ├─ App.config
+   └─ USB.ico
 ```
 
 ---
@@ -97,6 +114,10 @@ WindowsToolDemo/
 ### ScreenSaverTool（屏保与背景设置）
 
 ![ScreenSaverTool](docs/screenshots/screensaver.png)
+
+### SerialPortDemo（串口调试助手）
+
+![SerialPortDemo](docs/screenshots/serialport.png)
 
 ---
 
@@ -124,6 +145,17 @@ WindowsToolDemo/
 > ⚠️ 该程序会修改**系统级组策略与电源策略**，建议在测试机 / 展示机上使用；生产环境慎用。
 > 要用 `gpedit.msc` 验证效果，必须以管理员身份运行本程序，否则计算机配置段无法落盘。
 
+### SerialPortDemo（串口调试助手）
+
+1. 选择**串口号**，并设置**波特率 / 校验位 / 数据位 / 停止位 / RTS**（默认常用参数）。
+2. 点 **打开串口** 建立连接；再次点 **关闭串口** 断开。
+3. **发送**：在发送区输入文本或 HEX（勾选 HEX 模式），点发送；可开启**定时发送**循环下发。
+4. **接收**：接收区实时显示，支持 ASCII / HEX 显示切换；可**暂停接收**与**清空**。
+5. **快捷命令**：通过「快捷命令」管理常用指令（名称 + HEX 内容，自动校验格式），一键发送。
+6. 底部状态栏显示发送 / 接收字节计数与连接状态。
+
+> 依赖：`xbd.DataConvertLib`（NuGet 包，首次生成时自动还原）。
+
 ---
 
 ## 技术亮点（作品集向）
@@ -131,6 +163,7 @@ WindowsToolDemo/
 - **本地组策略 PReg 二进制读写**：直接解析 / 生成 `Registry.pol`（`PReg` 头 + UTF-16LE 字段），让 `gpedit.msc` 正确显示策略状态，不依赖 `gpedit` UI。
 - **SysWOW64 重定向处理**：32 位进程访问 `System32` 会被重定向到 `SysWOW64`，导致 `.pol` 写错位置、`gpedit` 看不到。已用 `Wow64DisableWow64FsRedirection` 关闭重定向，确保写进真正的 `System32\GroupPolicy\`。
 - **防自动锁屏防护链**：屏保设为「无」 + 不显示锁屏 + 禁用「计算机不活动限制」+ 禁用「唤醒时需要密码（CONSOLELOCK）」+ `powercfg` 立即生效，多层兜底。
+- **串口调试助手**：基于 `.NET SerialPort` 实现 ASCII / HEX 双模式收发、定时发送、接收暂停与字节计数；`HexHelper` 提供 HEX ⇄ ASCII 互转与字节拼接，`ParityHelper` 提供校验辅助。
 
 ---
 
