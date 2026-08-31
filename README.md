@@ -1,24 +1,19 @@
 # WindowsToolDemo
 
-一组 **Windows 桌面小工具**（C# / WinForms），用于现场快速配置设备网络、系统显示策略，以及串口设备调试。
-目前包含三个独立工具：**IPSetter**（有线网卡 IP 设置）、**ScreenSaverTool**（壁纸 / 锁屏 / 屏保设置）与 **SerialPortDemo**（串口调试助手）。
+一组 **Windows 桌面小工具**（C# / WinForms），用于现场快速配置设备网络、系统显示策略，以及串口 / Modbus 设备调试。
+目前包含四个独立工具：**IPSetter**（有线网卡 IP 设置）、**ScreenSaverTool**（壁纸 / 锁屏 / 屏保设置）、**SerialPortDemo**（串口调试助手）与 **ModbusRTUDemo**（Modbus RTU 主站调试）。
 
-> 标签：`C#` `WinForms` `WMI` `组策略` `串口` `Windows` `上位机` `GitHub`
+> 标签：`C#` `WinForms` `WMI` `组策略` `串口` `Modbus` `RS485` `Windows` `上位机` `GitHub`
 
 ---
 
 ## 功能特性
 
-- [x] **IPSetter**：扫描本机有线网卡，一键设置静态 IP / 子网掩码 / 默认网关，或切回 DHCP
-- [x] **IPSetter**：自动过滤虚拟/无线适配器（Hyper-V、VMware、VPN、Wi-Fi 等），只列真实有线网卡
-- [x] **IPSetter**：IPv4 格式校验 + 记忆上次填写值（持久化到 user.config）
-- [x] **ScreenSaverTool**：选择图片设置桌面壁纸 + 锁屏背景
-- [x] **ScreenSaverTool**：通过本地组策略（Registry.pol）固化「不显示锁屏 / 禁用屏保 / 阻止自动锁屏」
-- [x] **SerialPortDemo**：串口调试助手，支持串口号 / 波特率 / 校验位 / 数据位 / 停止位 / RTS 配置
-- [x] **SerialPortDemo**：文本（ASCII）与十六进制（HEX）双模式收发，接收区可暂停、可清空
-- [x] **SerialPortDemo**：定时 / 自动循环发送，发送 / 接收字节计数
-- [x] **SerialPortDemo**：快捷命令管理（命名 + HEX 内容校验），一键调用
-- [x] **SerialPortDemo**：HEX ⇄ ASCII 互转、校验（ParityHelper）等辅助工具
+- **IPSetter**：扫描本机有线网卡，一键设置静态 IP / 子网掩码 / 默认网关或切回 DHCP，自动过滤虚拟与无线适配器并记忆上次配置。
+- **ScreenSaverTool**：通过本地组策略设置桌面壁纸与锁屏背景，并固化「不显示锁屏 / 禁用屏保 / 阻止自动锁屏」等系统策略。
+- **SerialPortDemo**：基于 .NET SerialPort 的串口调试助手，支持 ASCII/HEX 双模式收发、定时发送、接收暂停与快捷命令管理。
+- **ModbusRTUDemo**：基于 RS485 串口的 Modbus RTU 主站调试工具，封装常用功能码（01/02/03/04/05/06/0F/10）与 CRC16 校验，支持多存储区读写与多种数据类型字节序组包。
+
 - [ ] 规划中：文件加密 / 解密工具
 - [ ] 规划中：格式转换工具
 
@@ -33,7 +28,8 @@
 | IPSetter 框架         | .NET Framework **4.7.2**                                                                                                                                |
 | ScreenSaverTool 框架  | .NET Framework **4.8**                                                                                                                                  |
 | SerialPortDemo 框架   | .NET Framework **4.6**                                                                                                                                  |
-| 关键技术                | WMI（`Win32_NetworkAdapter`）、注册表 + 本地组策略 PReg 二进制读写、Win32 API（`SystemParametersInfo`、`Wow64DisableWow64FsRedirection`）、`powercfg`、`.NET SerialPort` |
+| ModbusRTUDemo 框架    | .NET Framework **4.7.2**                                                                                                                                  |
+| 关键技术                | WMI（`Win32_NetworkAdapter`）、注册表 + 本地组策略 PReg 二进制读写、Win32 API（`SystemParametersInfo`、`Wow64DisableWow64FsRedirection`）、`powercfg`、`.NET SerialPort`、`Modbus RTU / RS485（CRC16）` |
 | 构建                  | Visual Studio 2022（含「.NET 桌面开发」工作负载）                                                                                                                |
 
 ---
@@ -44,7 +40,7 @@
 - 运行时：建议安装 **.NET Framework 4.8**（向下兼容 4.6 及以上）
 - Visual Studio 2022（打开 `WindowsToolDemo.sln` 编译）
 - **管理员权限**：`ScreenSaverTool` 需写计算机配置 / 电源策略（已通过 `app.manifest` 请求提权），请以管理员身份运行
-- **SerialPortDemo 依赖**：`xbd.DataConvertLib` 为 NuGet 包，首次生成时自动还原
+- **SerialPortDemo / ModbusRTUDemo 依赖**：`xbd.DataConvertLib` 为 NuGet 包，首次生成时自动还原
 
 ---
 
@@ -74,7 +70,7 @@ WindowsToolDemo.sln
 
 ```
 WindowsToolDemo/
-├─ WindowsToolDemo.sln        # 解决方案（含三个子项目）
+├─ WindowsToolDemo.sln        # 解决方案（含四个子项目）
 ├─ IPSetter/                  # 有线网卡 IP 设置工具
 │  ├─ IPSetter.csproj
 │  ├─ MainForm.cs             # 界面与交互
@@ -91,16 +87,25 @@ WindowsToolDemo/
 │  ├─ Program.cs
 │  ├─ app.manifest            # 提权清单
 │  └─ screensaver.ico
-└─ SerialPortDemo/           # 串口调试助手
-   ├─ SerialPortDemo.csproj
-   ├─ FrmMain.cs              # 主窗体：串口参数配置、收发、定时发送
+├─ SerialPortDemo/           # 串口调试助手
+│  ├─ SerialPortDemo.csproj
+│  ├─ FrmMain.cs              # 主窗体：串口参数配置、收发、定时发送
+│  ├─ FrmMain.Designer.cs
+│  ├─ FrmQuickSet.cs          # 快捷命令（命名 + HEX 内容校验）
+│  ├─ ParityHelper.cs         # 校验辅助
+│  ├─ Helper\HexHelper.cs     # HEX ⇄ ASCII 转换、字节拼接等
+│  ├─ Program.cs
+│  ├─ App.config
+│  └─ USB.ico
+└─ ModbusRTUDemo/            # Modbus RTU 主站调试（RS485 串口）
+   ├─ ModbusRTUDemo.csproj
+   ├─ FrmMain.cs             # 主窗体：从站地址、串口参数、读写操作、日志
    ├─ FrmMain.Designer.cs
-   ├─ FrmQuickSet.cs          # 快捷命令（命名 + HEX 内容校验）
-   ├─ ParityHelper.cs         # 校验辅助
-   ├─ Helper\HexHelper.cs     # HEX ⇄ ASCII 转换、字节拼接等
+   ├─ Helper\ModbusRtu.cs    # Modbus RTU 协议（功能码 01/02/03/04/05/06/0F/10 + CRC16）
+   ├─ Helper\SimpleHybirdLock.cs # 串口读写互斥锁
    ├─ Program.cs
    ├─ App.config
-   └─ USB.ico
+   └─ system.ico
 ```
 
 ---
@@ -118,6 +123,10 @@ WindowsToolDemo/
 ### SerialPortDemo（串口调试助手）
 
 ![SerialPortDemo](docs/screenshots/serialport.png)
+
+### ModbusRTUDemo（Modbus RTU 主站调试）
+
+![ModbusRTUDemo](docs/screenshots/Modbusrtu.png)
 
 ---
 
@@ -156,6 +165,16 @@ WindowsToolDemo/
 
 > 依赖：`xbd.DataConvertLib`（NuGet 包，首次生成时自动还原）。
 
+### ModbusRTUDemo（Modbus RTU 主站调试）
+
+1. 选择**串口号**与**波特率 / 校验位 / 数据位 / 停止位**（默认 9600），填写**从站地址（Slave）**，点 **连接** 建立 RS485 串口链路。
+2. 选择**存储区**：输出线圈 `0x`、输入状态 `1x`、保持寄存器 `4x`、输入寄存器 `3x`，并填写起始地址与长度。
+3. 点 **读取** 下发对应功能码（01/02/03/04）并解析返回报文，结果在日志区显示。
+4. 点 **写入** 执行单点 / 多点写操作（05/06/0F/10）；可写入 `short / ushort / int / uint / float` 及数组，按 **DataFormat** 字节序（ABCD 等）组包。
+5. 底部日志区实时显示连接状态与收发报文，便于排查通信异常。
+
+> 基于 RS485 半双工总线，调试时请确保接线（A/B）与终端电阻正确；更多协议基础见 `docs/md/01 Modbus基础.md`、`docs/md/02 ModbusRTU.md`。
+
 ---
 
 ## 技术亮点（作品集向）
@@ -164,6 +183,7 @@ WindowsToolDemo/
 - **SysWOW64 重定向处理**：32 位进程访问 `System32` 会被重定向到 `SysWOW64`，导致 `.pol` 写错位置、`gpedit` 看不到。已用 `Wow64DisableWow64FsRedirection` 关闭重定向，确保写进真正的 `System32\GroupPolicy\`。
 - **防自动锁屏防护链**：屏保设为「无」 + 不显示锁屏 + 禁用「计算机不活动限制」+ 禁用「唤醒时需要密码（CONSOLELOCK）」+ `powercfg` 立即生效，多层兜底。
 - **串口调试助手**：基于 `.NET SerialPort` 实现 ASCII / HEX 双模式收发、定时发送、接收暂停与字节计数；`HexHelper` 提供 HEX ⇄ ASCII 互转与字节拼接，`ParityHelper` 提供校验辅助。
+- **Modbus RTU 协议栈**：自实现 8 个常用功能码（读 / 写线圈与寄存器）的报文拼接与解析、表驱动 CRC16 校验，并用互斥锁保证半双工总线单次交互原子性；`xbd.DataConvertLib` 负责多数据类型按字节序组包 / 拆包。
 
 ---
 
