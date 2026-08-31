@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerialPortDemo", "SerialPor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModbusRTUDemo", "ModbusRTUDemo\ModbusRTUDemo.csproj", "{911E6440-63CA-487D-ADD7-0D69DFBB3602}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketDemo", "SocketDemo\SocketDemo.csproj", "{1EF1A9F6-6F99-477C-86F5-9F9371E2D4DC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{911E6440-63CA-487D-ADD7-0D69DFBB3602}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{911E6440-63CA-487D-ADD7-0D69DFBB3602}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{911E6440-63CA-487D-ADD7-0D69DFBB3602}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1EF1A9F6-6F99-477C-86F5-9F9371E2D4DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EF1A9F6-6F99-477C-86F5-9F9371E2D4DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EF1A9F6-6F99-477C-86F5-9F9371E2D4DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EF1A9F6-6F99-477C-86F5-9F9371E2D4DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
