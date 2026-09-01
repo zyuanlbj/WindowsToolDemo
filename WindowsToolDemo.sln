@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModbusRTUDemo", "ModbusRTUD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketDemo", "SocketDemo\SocketDemo.csproj", "{1EF1A9F6-6F99-477C-86F5-9F9371E2D4DC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModbusTCPDemo", "ModbusTCPDemo\ModbusTCPDemo.csproj", "{AEBDC22F-42C8-445F-B2E6-82EDF744EB4A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{1EF1A9F6-6F99-477C-86F5-9F9371E2D4DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EF1A9F6-6F99-477C-86F5-9F9371E2D4DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1EF1A9F6-6F99-477C-86F5-9F9371E2D4DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEBDC22F-42C8-445F-B2E6-82EDF744EB4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEBDC22F-42C8-445F-B2E6-82EDF744EB4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEBDC22F-42C8-445F-B2E6-82EDF744EB4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEBDC22F-42C8-445F-B2E6-82EDF744EB4A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

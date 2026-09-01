@@ -1,9 +1,9 @@
 # WindowsToolDemo
 
 一组 **Windows 桌面小工具**（C# / WinForms），用于现场快速配置设备网络、系统显示策略，以及串口 / Modbus / Socket 设备调试与通信。
-目前包含五个独立工具：**IPSetter**（有线网卡 IP 设置）、**ScreenSaverTool**（壁纸 / 锁屏 / 屏保设置）、**SerialPortDemo**（串口调试助手）、**ModbusRTUDemo**（Modbus RTU 主站调试）与 **SocketDemo**（TCP 通信演示）。
+目前包含六个独立工具：**IPSetter**（有线网卡 IP 设置）、**ScreenSaverTool**（壁纸 / 锁屏 / 屏保设置）、**SerialPortDemo**（串口调试助手）、**ModbusRTUDemo**（Modbus RTU 主站调试）、**ModbusTCPDemo**（Modbus TCP 主站调试）与 **SocketDemo**（TCP 通信演示）。
 
-> 标签：`C#` `WinForms` `WMI` `组策略` `串口` `Modbus` `RS485` `Socket` `TCP` `Windows` `上位机` `GitHub`
+> 标签：`C#` `WinForms` `WMI` `组策略` `串口` `Modbus` `RS485` `Modbus TCP` `Socket` `TCP` `Windows` `上位机` `GitHub`
 
 ---
 
@@ -13,6 +13,7 @@
 - **ScreenSaverTool**：通过本地组策略设置桌面壁纸与锁屏背景，并固化「不显示锁屏 / 禁用屏保 / 阻止自动锁屏」等系统策略。
 - **SerialPortDemo**：基于 .NET SerialPort 的串口调试助手，支持 ASCII/HEX 双模式收发、定时发送、接收暂停与快捷命令管理。
 - **ModbusRTUDemo**：基于 RS485 串口的 Modbus RTU 主站调试工具，封装常用功能码（01/02/03/04/05/06/0F/10）与 CRC16 校验，支持多存储区读写与多种数据类型字节序组包。
+- **ModbusTCPDemo**：基于 TCP 套接字的 Modbus TCP 主站调试工具，以 MBAP 报文头封装常用功能码（01/02/03/04/05/06/0F/10）（无需 CRC，由 TCP 保证可靠传输），支持多存储区读写与多种数据类型字节序组包。
 - **SocketDemo**：基于 .NET Socket 的 TCP 通信演示，包含客户端（连接 / 收发文本 / 收发文件）与服务端（监听多客户端、在线列表、单发 / 群发 / 文件传输）。
 
 - [ ] 规划中：文件加密 / 解密工具
@@ -30,8 +31,9 @@
 | ScreenSaverTool 框架  | .NET Framework **4.8**                                                                                                                                  |
 | SerialPortDemo 框架   | .NET Framework **4.6**                                                                                                                                  |
 | ModbusRTUDemo 框架    | .NET Framework **4.7.2**                                                                                                                                  |
+| ModbusTCPDemo 框架    | .NET Framework **4.7.2**                                                                                                                                  |
 | SocketDemo 框架       | .NET Framework **4.7.2**                                                                                                                                  |
-| 关键技术                | WMI（`Win32_NetworkAdapter`）、注册表 + 本地组策略 PReg 二进制读写、Win32 API（`SystemParametersInfo`、`Wow64DisableWow64FsRedirection`）、`powercfg`、`.NET SerialPort`、`Modbus RTU / RS485（CRC16）`、`.NET Socket / TCP` |
+| 关键技术                | WMI（`Win32_NetworkAdapter`）、注册表 + 本地组策略 PReg 二进制读写、Win32 API（`SystemParametersInfo`、`Wow64DisableWow64FsRedirection`）、`powercfg`、`.NET SerialPort`、`Modbus RTU / RS485（CRC16）`、`.NET Socket / Modbus TCP（MBAP）`、`.NET Socket / TCP` |
 | 构建                  | Visual Studio 2022（含「.NET 桌面开发」工作负载）                                                                                                                |
 
 ---
@@ -42,7 +44,8 @@
 - 运行时：建议安装 **.NET Framework 4.8**（向下兼容 4.6 及以上）
 - Visual Studio 2022（打开 `WindowsToolDemo.sln` 编译）
 - **管理员权限**：`ScreenSaverTool` 需写计算机配置 / 电源策略（已通过 `app.manifest` 请求提权），请以管理员身份运行
-- **SerialPortDemo / ModbusRTUDemo 依赖**：`xbd.DataConvertLib` 为 NuGet 包，首次生成时自动还原（`SocketDemo` 为纯 .NET Framework，无第三方依赖）
+- **SerialPortDemo / ModbusRTUDemo / ModbusTCPDemo 依赖**：`xbd.DataConvertLib` 为 NuGet 包，首次生成时自动还原（`SocketDemo` 为纯 .NET Framework，无第三方依赖）
+- **ModbusTCPDemo 项目引用**：直接引用 `ModbusRTUDemo` 工程，复用其 `Helper`（字节数组 / 互斥锁 / 存储区枚举等），生成时请确保 `ModbusRTUDemo` 一并编译
 
 ---
 
@@ -72,7 +75,7 @@ WindowsToolDemo.sln
 
 ```
 WindowsToolDemo/
-├─ WindowsToolDemo.sln        # 解决方案（含五个子项目）
+├─ WindowsToolDemo.sln        # 解决方案（含六个子项目）
 ├─ IPSetter/                  # 有线网卡 IP 设置工具
 │  ├─ IPSetter.csproj
 │  ├─ MainForm.cs             # 界面与交互
@@ -108,6 +111,14 @@ WindowsToolDemo/
 │  ├─ Program.cs
 │  ├─ App.config
 │  └─ system.ico
+├─ ModbusTCPDemo/            # Modbus TCP 主站调试（TCP 套接字）
+│  ├─ ModbusTCPDemo.csproj   # 引用 ModbusRTUDemo 工程（复用 Helper）
+│  ├─ FrmMain.cs             # 主窗体：IP / 端口 / 从站地址、读写操作、日志
+│  ├─ FrmMain.Designer.cs
+│  ├─ Helper\ModbusTcp.cs    # Modbus TCP 协议（MBAP 报文头 + 功能码 01/02/03/04/05/06/0F/10）
+│  ├─ Program.cs
+│  ├─ App.config
+│  └─ system.ico
 └─ SocketDemo/               # TCP 通信演示（客户端 / 服务端）
    ├─ SocketDemo.csproj
    ├─ FrmTcpClient.cs        # TCP 客户端：连接、收发文本、收发文件
@@ -137,6 +148,10 @@ WindowsToolDemo/
 ### ModbusRTUDemo（Modbus RTU 主站调试）
 
 ![ModbusRTUDemo](docs/screenshots/Modbusrtu.png)
+
+### ModbusTCPDemo（Modbus TCP 主站调试）
+
+![ModbusTCPDemo](docs/screenshots/Modbustcp.png)
 
 ### SocketDemo（TCP 客户端）
 
@@ -193,6 +208,15 @@ WindowsToolDemo/
 
 > 基于 RS485 半双工总线，调试时请确保接线（A/B）与终端电阻正确；更多协议基础见 `docs/md/01 Modbus基础.md`、`docs/md/02 ModbusRTU.md`。
 
+### ModbusTCPDemo（Modbus TCP 主站调试）
+
+1. 填写**服务器 IP** 与**端口**（Modbus TCP 默认 `502`），并填写**从站地址（Slave）**，点 **连接** 通过 TCP 与从站建立链路（无串口参数，无需 CRC）。
+2. 选择**存储区**：输出线圈 `0x`、输入状态 `1x`、保持寄存器 `4x`、输入寄存器 `3x`，并填写起始地址与长度；可切换 **DataFormat** 字节序（ABCD 等）。
+3. 点 **读取** 下发对应功能码（01/02/03/04），由 `ModbusTcp` 自动封装 MBAP 报文头并解析返回；点 **写入** 执行单点 / 多点写（05/06/0F/10）。
+4. 底部日志区实时显示连接状态与收发报文，便于排查通信异常。
+
+> 与 RTU 版复用同一套 `ModbusRTUDemo.Helper`（字节数组、互斥锁、存储区 / 数据类型枚举）；区别仅在传输层：TCP 用 MBAP 报文头、依赖 TCP 的可靠性保证，**不再做 CRC16 校验**。更多协议基础见 `docs/md/01 Modbus基础.md`、`docs/md/02 ModbusRTU.md`、`docs/md/04 ModbusTCP.md`。
+
 ### SocketDemo（TCP 通信演示）
 
 **服务端（FrmTcpServer）**
@@ -220,6 +244,7 @@ WindowsToolDemo/
 - **防自动锁屏防护链**：屏保设为「无」 + 不显示锁屏 + 禁用「计算机不活动限制」+ 禁用「唤醒时需要密码（CONSOLELOCK）」+ `powercfg` 立即生效，多层兜底。
 - **串口调试助手**：基于 `.NET SerialPort` 实现 ASCII / HEX 双模式收发、定时发送、接收暂停与字节计数；`HexHelper` 提供 HEX ⇄ ASCII 互转与字节拼接，`ParityHelper` 提供校验辅助。
 - **Modbus RTU 协议栈**：自实现 8 个常用功能码（读 / 写线圈与寄存器）的报文拼接与解析、表驱动 CRC16 校验，并用互斥锁保证半双工总线单次交互原子性；`xbd.DataConvertLib` 负责多数据类型按字节序组包 / 拆包。
+- **Modbus TCP 协议栈**：基于 `.NET Socket` 实现 Modbus TCP 主站，复用 RTU 版的 Helper 与数据类型枚举，以 **MBAP 报文头**（事务标识 + 协议标识 + 长度 + 单元标识）封装 8 个常用功能码，依赖 TCP 可靠性故**不做 CRC16**；与 RTU 版共享存储区 / DataFormat 字节序逻辑，体现「同一协议、两套传输」的工程复用。
 - **TCP 通信演示**：基于 `.NET Socket` 实现服务端 `Accept` 多客户端（`Dictionary<RemoteEndPoint, Socket>` 管理会话）+ 客户端连接；首字节标志位区分文本 / 文件两类报文，演示同步收发、在线列表与单发 / 群发 / 文件传输。
 
 ---
